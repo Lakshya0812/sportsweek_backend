@@ -8,16 +8,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         User = get_user_model()
-        username = os.environ.get('DJANGO_SUPERUSER_USERNAME')
-        email = os.environ.get('DJANGO_SUPERUSER_EMAIL')
-        password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
-
-        if not all([username, email, password]):
-            self.stdout.write(self.style.WARNING(
-                'Skipping superuser creation — DJANGO_SUPERUSER_USERNAME, '
-                'DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD not all set.'
-            ))
-            return
+        username = 'auriga-sports'
+        email = 'admin@auriga.com'
+        password = 'aurigasports@123'
 
         if User.objects.filter(username=username).exists():
             user = User.objects.get(username=username)
