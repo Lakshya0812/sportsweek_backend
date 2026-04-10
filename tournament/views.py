@@ -1,7 +1,8 @@
 """
 Views for the Sports Week Tournament API.
 """
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser, AllowAny
@@ -68,6 +69,23 @@ class GalaxyViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAdminUser], url_path='set-points')
+    def set_points(self, request, pk=None):
+        galaxy = self.get_object()
+        points = request.data.get('total_points')
+        if points is None:
+            return Response({'detail': 'total_points is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            points = int(points)
+            if points < 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            return Response({'detail': 'total_points must be a non-negative integer.'}, status=status.HTTP_400_BAD_REQUEST)
+        galaxy.total_points = points
+        galaxy.save(update_fields=['total_points'])
+        serializer = self.get_serializer(galaxy)
+        return Response(serializer.data)
 
 
 # ---------------------------------------------------------------------------
